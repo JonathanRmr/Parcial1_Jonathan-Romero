@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personajes de Star Wars</title>
+</head>
+<body>
+    <h1>Lista de Personajes de Star Wars</h1>
+
+    <form id="filtros" method="get">
+        <label for="nombre">Buscar por nombre:</label>
+        <input type="text" id="nombre" name="nombre" placeholder="Ej: Luke Skywalker">
+        
+        <label for="id">Buscar por ID:</label>
+        <input type="text" id="id" name="id" placeholder="Ej: 1">
+        
+        <label for="planeta">Filtrar por planeta:</label>
+        <select id="planeta" name="planeta">
+            <option value="">Todos</option>
+            <% const planetas = [...new Set(personajes.map(p => p.homeworld))]; %>
+            <% planetas.forEach(planeta => { %>
+                <option value="<%= planeta %>"><%= planeta %></option>
+            <% }) %>
+        </select>
+        
+        <label for="especie">Filtrar por especie:</label>
+        <select id="especie" name="especie">
+            <option value="">Todas</option>
+            <% const especies = [...new Set(personajes.map(p => p.species))]; %>
+            <% especies.forEach(especie => { %>
+                <option value="<%= especie %>"><%= especie %></option>
+            <% }) %>
+        </select>
+
+        <button type="submit">Buscar</button>
+    </form>
+
+    <h2>Resultados:</h2>
+    <div>
+        <% if (personajes.length > 0) { %>
+            <% personajes.forEach(personaje => { %>
+                <p><strong><%= personaje.name %></strong></p>
+                <p>ID: <%= personaje._id %></p>
+                <p>Especie: <%= personaje.species %></p>
+                <p>Planeta: <%= personaje.homeworld %></p>
+                <hr>
+            <% }) %>
+        <% } else { %>
+            <p>No se encontraron resultados.</p>
+        <% } %>
+    </div>
+
+    <script>
+        document.getElementById('filtros').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const nombre = document.getElementById('nombre').value;
+            const id = document.getElementById('id').value;
+            const planeta = document.getElementById('planeta').value;
+            const especie = document.getElementById('especie').value;
+
+            const res = await fetch(`/buscar?nombre=${nombre}&id=${id}&planeta=${planeta}&especie=${especie}`);
+            const html = await res.text();
+            
+            document.querySelector('div').innerHTML = new DOMParser()
+                .parseFromString(html, 'text/html')
+                .querySelector('div').innerHTML;
+        });
+    </script>
+</body>
+</html>
